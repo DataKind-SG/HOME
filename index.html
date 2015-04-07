@@ -1,0 +1,41 @@
+<html>
+<head>
+	<script src="scripts/papaparse.min.js"></script>
+	<script src="scripts/dropzone.js"></script>
+	<script src="scripts/jquery-2.1.3.min.js"></script>
+	<script src="scripts/bootstrap.min.js"></script>
+	<script src="scripts/FileSaver.min.js" async=""></script>
+	<script src="scripts/anon.js"></script>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+ <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">DKSG-HOME</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div style="padding-top: 40px;">
+        <h1>Drop the CSV file for anonymisation</h1>
+		<div id="dropzone">
+		  <form action="#" class="dropzone" id="my-dropzone">
+		  </form>
+		</div>
+		<button onclick="saveAnonymizedData(this)">Save anonymised data</button>
+		<button onclick="saveMappings(this)">Save mappings</button>
+      </div>
+
+    </div>
+</body>
+</html>
