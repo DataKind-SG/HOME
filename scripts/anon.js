@@ -1,6 +1,6 @@
 var anonymized = [];
 var anonDictionaries = {};
-var useHeaders = false;
+var useHeaders = true;
 
 function saveAnonymizedData(d) {
 	if (jQuery.isEmptyObject(anonymized))
@@ -31,6 +31,7 @@ function saveMappings(d) {
 
 
 function anonymize(file, anonConfig) {
+	var reZipCode = /.*(\d{2})(\d{4}).*/g;
 	var results = Papa.parse(file, {
 		newline: "\n",
 		worker: true,
@@ -52,14 +53,19 @@ function anonymize(file, anonConfig) {
 					if (anonDictionaries[item.name] == null) {
 						anonDictionaries[item.name] = {};
 					}
-					var anonFieldValue = anonDictionaries[item.name][columns[selector]];
-					if (anonFieldValue == null) {
-						anonFieldValue = Object.keys(anonDictionaries[item.name]).length;
-						anonDictionaries[item.name][columns[selector]] = anonFieldValue;
+					if (columns[selector] != null) {
+						var col = columns[selector];
+						col.replace(/\s/g, "").toLowerCase();
+						var anonFieldValue = anonDictionaries[item.name][col];
+						if (anonFieldValue == null) {
+							anonFieldValue = Object.keys(anonDictionaries[item.name]).length;
+							anonDictionaries[item.name][col] = anonFieldValue;
+						}
+						columns[selector] = anonFieldValue;
 					}
-					columns[selector] = anonFieldValue;
 				} else if (item.anon_type == 2) {
-
+					if (columns[selector] != null)
+						columns[selector].replace(reZipCode, "$1");
 				} else if (item.anon_type == 4) {
 					var date = new Date(columns[selector]);
 					columns[selector] = date.getFullYear();
