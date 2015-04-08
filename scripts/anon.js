@@ -11,8 +11,21 @@ function saveAnonymizedData(d) {
 function saveMappings(d) {
 	if (anonDictionaries.length == 0)
 		return;
-	var blob = new Blob([JSON.stringify(anonDictionaries)], {type: "text/plain;charset=utf-8"});
-	saveAs(blob, "mappings.json");
+	//var blob = new Blob([JSON.stringify(anonDictionaries)], {type: "text/plain;charset=utf-8"});
+	//saveAs(blob, "mappings.json");
+	for (var key in anonDictionaries) {
+		if (anonDictionaries.hasOwnProperty(key)) {
+			var string = ""
+			for (var item in anonDictionaries[key]) {
+				string += item;
+				string += ",";
+				string += anonDictionaries[key][item];
+				string += "\n"
+			}
+			var blob = new Blob([string], {type: "text/plain;charset=utf-8"});
+			saveAs(blob, key.concat("_key.csv"));
+		}
+	}
 }
 
 
@@ -22,6 +35,7 @@ function anonymize(file, anonConfig) {
 		worker: true,
 		step: function(row) {
 			var columns = row.data[0];
+			if (columns.length === 1) { return; }
 
 			anonConfig.forEach(function(item) {
 				if (item.anon_type == 1) {
