@@ -1,15 +1,16 @@
 var anonymized = [];
 var anonDictionaries = {};
+var useHeaders = false;
 
 function saveAnonymizedData(d) {
-	if (anonymized.length == 0)
+	if (jQuery.isEmptyObject(anonymized))
 		return;
 	var blob = new Blob(anonymized, {type: "text/plain;charset=utf-8"});
 	saveAs(blob, "anonymized_home_data.csv");
 }
 
 function saveMappings(d) {
-	if (anonDictionaries.length == 0)
+	if (jQuery.isEmptyObject(anonDictionaries))
 		return;
 	//var blob = new Blob([JSON.stringify(anonDictionaries)], {type: "text/plain;charset=utf-8"});
 	//saveAs(blob, "mappings.json");
@@ -33,24 +34,35 @@ function anonymize(file, anonConfig) {
 	var results = Papa.parse(file, {
 		newline: "\n",
 		worker: true,
+		header: useHeaders,
 		step: function(row) {
 			var columns = row.data[0];
 			if (columns.length === 1) { return; }
 
 			anonConfig.forEach(function(item) {
-				if (item.anon_type == 1) {
+				var selector;
+				if (useHeaders)
+					selector = item.name;
+				else
+					selector = item.index;
+
+				if (item.anon_type == 0) {
+					columns[selector] = "";
+				} else if (item.anon_type == 1) {
 					if (anonDictionaries[item.name] == null) {
 						anonDictionaries[item.name] = {};
 					}
-					var anonFieldValue = anonDictionaries[item.name][columns[item.index]];
+					var anonFieldValue = anonDictionaries[item.name][columns[selector]];
 					if (anonFieldValue == null) {
 						anonFieldValue = Object.keys(anonDictionaries[item.name]).length;
-						anonDictionaries[item.name][columns[item.index]] = anonFieldValue;
+						anonDictionaries[item.name][columns[selector]] = anonFieldValue;
 					}
-					columns[item.index] = anonFieldValue;
+					columns[selector] = anonFieldValue;
+				} else if (item.anon_type == 2) {
+
 				} else if (item.anon_type == 4) {
-					var date = new Date(columns[item.index]);
-					columns[item.index] = date.getFullYear();
+					var date = new Date(columns[selector]);
+					columns[selector] = date.getFullYear();
 				}
 			});
 			anonymized = anonymized.concat(columns.join(",")+"\n");
@@ -84,6 +96,9 @@ $.getJSON('./conf/anonymize.conf', function(data) {
 
 			// On removing file
 			self.on("removedfile", function(file) {
+				anonymized = [];
+				anonDictionaries = {};
+
 				console.log("removedfile ", file);
 			});
 		}
