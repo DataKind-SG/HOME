@@ -71,7 +71,15 @@ function anonymize(file, anonConfig) {
 					columns[selector] = date.getFullYear();
 				}
 			});
-			anonymized = anonymized.concat(columns.join(",")+"\n");
+			var anonymizedRow = Papa.unparse([columns], {
+			            	quotes: true,
+			            	delimiter: ",",
+			            	newline: "\n"
+			});
+			if (jQuery.isEmptyObject(anonymized))
+				anonymized = anonymized.concat(anonymizedRow);
+			else
+				anonymized = anonymized.concat(anonymizedRow.split("\n")[1]+"\n");
 		},
 
 		complete: function() {
